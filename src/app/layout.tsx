@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Inter, Epilogue } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
