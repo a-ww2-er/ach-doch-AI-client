@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clearAuthToken, useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
+import LandingHeader from "@/components/layout/LandingHeader";
 
 const navigation = [
   { label: "Dashboard", href: "/dashboard" },
@@ -21,6 +22,8 @@ export default function Header() {
   const handleLogout = async () => {
     try { await api.logout(); } catch (error) { console.error(error); } finally { clearAuthToken(); }
   };
+
+  if (pathname === "/") return <LandingHeader />;
 
   return (
     <header className="fixed top-0 w-full z-50 bg-[#F8F8F8] border-b border-[#222222] h-24 flex items-center">
