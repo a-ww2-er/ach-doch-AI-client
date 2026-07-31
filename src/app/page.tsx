@@ -24,13 +24,13 @@ export default function Home() {
       <div className="absolute right-[21%] top-[25%] h-4 w-4 rounded-full bg-[#f5f2ec]" />
       <div className="max-w-[1440px] mx-auto relative grid lg:grid-cols-[1.1fr_.9fr] gap-12 items-end">
         <div className="relative z-10">
-          <h1 className="max-w-3xl font-epilogue text-[clamp(3.75rem,10vw,8rem)] leading-[0.88] tracking-[-0.08em] font-black">Narrative practice for English and German.</h1>
+          <h1 className="max-w-3xl font-epilogue text-[clamp(3.75rem,10vw,8rem)] leading-[0.88] tracking-[-0.08em] font-black uppercase"><span className="text-secondary-container">Narrative practice</span><br />for English and German.</h1>
           <p className="max-w-lg text-base sm:text-lg md:text-xl leading-relaxed opacity-70 mt-10 md:mt-12">A living language practice built from stories, mistakes, and the beautiful space between what you said and what you meant.</p>
           <div className="flex flex-wrap items-center gap-5 mt-8 md:mt-10"><Link href="/start" className="bg-secondary-container text-on-primary text-label-bold uppercase px-7 sm:px-8 py-4 sm:py-5 hover:bg-[#ff7a4d] transition-colors">Enter the lab <span className="material-symbols-outlined align-middle ml-2 text-base">arrow_forward</span></Link><Link href="#method" className="text-label-bold uppercase border-b border-[#f5f2ec]/50 pb-1 hover:border-[#f5f2ec]">See how it works</Link></div>
         </div>
         <div className="relative hidden lg:block min-h-[500px]" aria-hidden="true"><div className="absolute inset-8 border border-[#f5f2ec]/30" /><div className="absolute inset-16 bg-cover bg-center grayscale mix-blend-screen opacity-70" style={{ backgroundImage: `url(${heroImage})` }} /><div className="absolute -left-3 bottom-20 bg-[#f5f2ec] text-[#161616] px-5 py-4 font-epilogue text-xl font-bold -rotate-6">Meaning is a moving target.</div><div className="absolute right-0 top-5 text-[10px] tracking-[0.35em] uppercase [writing-mode:vertical-rl] opacity-60">EN / DE / Repeat</div></div>
       </div>
-      <div className="max-w-[1440px] mx-auto relative mt-16 pt-5 border-t border-[#f5f2ec]/20 flex flex-wrap gap-x-10 gap-y-3 text-label-bold uppercase opacity-60"><span>English / German</span><span>AI-guided feedback</span><span>A2 to C1</span><span>Stories that stay with you</span></div>
+      <div className="max-w-[1440px] mx-auto relative mt-16 pt-5 border-t border-[#f5f2ec]/20 flex flex-wrap gap-x-10 gap-y-3 text-label-bold uppercase opacity-60"><span>English <span role="img" aria-label="English flag">🇬🇧</span> / German <span role="img" aria-label="German flag">🇩🇪</span></span><span>AI-guided feedback</span><span>A2 to C1</span><span>Stories that stay with you</span></div>
     </section>
 
     <div className="bg-secondary-container text-on-primary overflow-hidden py-3"><div className="home-marquee-track flex w-max gap-12 text-label-bold uppercase"><span>Translate the feeling</span><span>*</span><span>Find the exact word</span><span>*</span><span>Make the mistake useful</span><span>*</span><span>Translate the feeling</span><span>*</span><span>Find the exact word</span></div></div>
