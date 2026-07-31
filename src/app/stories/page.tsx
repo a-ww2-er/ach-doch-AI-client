@@ -11,14 +11,14 @@ const storyImages = [
 ];
 
 function StoryCard({ story, index }: { story: StorySummary; index: number }) {
-  const firstSession = story.sessions[0];
-  const ready = firstSession?.status === "ready";
+  const readySession = story.sessions.find((session) => session.status === "ready");
+  const ready = Boolean(readySession);
   const image = storyImages[index % storyImages.length];
   const details = <><span className="text-label-bold uppercase opacity-75">{story.category.replace("_", " ")} / {story.cefr_level}</span><strong className="block font-epilogue text-2xl mt-2">{story.title}</strong><p className="text-sm opacity-75 mt-3 line-clamp-2">{story.theme}</p><span className="mt-5 inline-flex items-center gap-2 text-label-bold uppercase">{ready ? "Open story" : "Generating chapter"}<span className="material-symbols-outlined text-base">{ready ? "arrow_forward" : "hourglass_top"}</span></span></>;
   const cardClass = "group relative min-h-80 overflow-hidden border border-primary-container text-left";
   const style = { backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.04) 10%, rgba(0,0,0,0.88) 100%), url(${image})`, backgroundPosition: "center", backgroundSize: "cover" };
 
-  return ready ? <Link href={`/session/${story.id}`} className={`${cardClass} block text-white`} style={style}><span className="absolute inset-0 bg-secondary-container/0 transition-colors group-hover:bg-secondary-container/20" /><span className="absolute bottom-0 left-0 right-0 p-6">{details}</span></Link> : <div className={`${cardClass} text-white opacity-80`} style={style} aria-label={`${story.title} is still generating`}><span className="absolute bottom-0 left-0 right-0 p-6">{details}</span></div>;
+  return ready ? <Link href={`/session/${story.id}?session=${readySession?.session_number || 1}`} className={`${cardClass} block text-white`} style={style}><span className="absolute inset-0 bg-secondary-container/0 transition-colors group-hover:bg-secondary-container/20" /><span className="absolute bottom-0 left-0 right-0 p-6">{details}</span></Link> : <div className={`${cardClass} text-white opacity-80`} style={style} aria-label={`${story.title} is still generating`}><span className="absolute bottom-0 left-0 right-0 p-6">{details}</span></div>;
 }
 
 export default function StoriesPage() {

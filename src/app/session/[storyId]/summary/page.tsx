@@ -11,9 +11,10 @@ interface SummaryData {
 
 export default function SessionSummaryPage() {
   const { storyId } = useParams<{ storyId: string }>();
+  const sessionNumber = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("session") || "1";
   const [summary] = useState<SummaryData | null>(() => {
     if (typeof window === "undefined") return null;
-    const saved = window.sessionStorage.getItem(`ach-doch-summary-${storyId}`);
+    const saved = window.sessionStorage.getItem(`ach-doch-summary-${storyId}-${sessionNumber}`);
     return saved ? JSON.parse(saved) as SummaryData : null;
   });
 

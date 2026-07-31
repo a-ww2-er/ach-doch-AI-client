@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import SentenceCard from "@/components/session/SentenceCard";
 import GlossaryPanel from "@/components/session/GlossaryPanel";
@@ -15,7 +15,10 @@ interface Feedback { score: number; critiques: { category: string; original: str
 export default function SessionPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const storyId = params.storyId as string;
+  const requestedSession = Number(searchParams.get("session") || "1");
+  const sessionNumber = Number.isInteger(requestedSession) && requestedSession > 0 ? requestedSession : 1;
 
   const [story, setStory] = useState<Story | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -33,7 +36,7 @@ export default function SessionPage() {
         setStory(storyData);
         
         // Load the first session
-        const sessionData = await api.getSessionDetails(storyId, 1);
+        const sessionData = await api.getSessionDetails(storyId, sessionNumber);
         setSession(sessionData);
       } catch (err) {
         console.error(err);
@@ -43,7 +46,7 @@ export default function SessionPage() {
       }
     }
     loadData();
-  }, [storyId]);
+  }, [storyId, sessionNumber]);
 
   const handleWordClick = async (word: string) => {
     setDictLoading(true);
@@ -85,8 +88,8 @@ export default function SessionPage() {
   const totalSentences = session.sentences.length;
 
   const finishSession = () => {
-    window.sessionStorage.setItem(`ach-doch-summary-${storyId}`, JSON.stringify({ story, session, feedbacks }));
-    router.push(`/session/${storyId}/summary`);
+    window.sessionStorage.setItem(`ach-doch-summary-${storyId}-${sessionNumber}`, JSON.stringify({ story, session, feedbacks }));
+    router.push(`/session/${storyId}/summary?session=${sessionNumber}`);
   };
 
   return (

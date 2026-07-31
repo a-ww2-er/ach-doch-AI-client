@@ -17,6 +17,13 @@ export interface StorySummary {
   sessions: { session_number: number; status: string }[];
 }
 
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 function authHeaders(): Record<string, string> {
   if (typeof window === "undefined") return {};
   const token = window.localStorage.getItem("ach-doch-token");
@@ -44,7 +51,7 @@ export const api = {
 
   async listStories() {
     const res = await fetch(`${API_BASE}/stories/`, { headers: authHeaders() });
-    if (!res.ok) throw new Error("We could not load the story library");
+    if (!res.ok) throw new ApiError("We could not load the story library", res.status);
     return res.json() as Promise<StorySummary[]>;
   },
 
