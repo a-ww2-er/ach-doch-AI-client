@@ -39,6 +39,14 @@ export interface ProgressOverview {
   recent_sessions: { user_session_id: string; story_id: string; story_title: string; session_number: number; status: string; overall_score: number | null; completed_at: string | null }[];
 }
 
+export interface SessionProgress {
+  user_session_id: string;
+  status: string;
+  overall_score: number | null;
+  completed_at: string | null;
+  attempts: { sentence_id: string; user_translation: string; score: number; critiques: { category: string; original: string; suggestion: string; explanation: string }[]; model_translation: string }[];
+}
+
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number) {
     super(message);
@@ -135,6 +143,12 @@ export const api = {
     const res = await fetch(`${API_BASE}/sessions/${userSessionId}/complete`, { method: "POST", headers: authHeaders() });
     if (!res.ok) throw new ApiError((await res.json().catch(() => null))?.detail || "We could not complete this session", res.status);
     return res.json();
+  },
+
+  async getSessionProgress(userSessionId: string) {
+    const res = await fetch(`${API_BASE}/sessions/${userSessionId}`, { headers: authHeaders() });
+    if (!res.ok) throw new ApiError("We could not load the session summary", res.status);
+    return res.json() as Promise<SessionProgress>;
   },
 
   async getProgressOverview() {

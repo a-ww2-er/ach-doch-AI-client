@@ -123,7 +123,7 @@ export default function SessionPage() {
     try {
       await api.completeSession(session.user_session_id);
       window.sessionStorage.setItem(`ach-doch-summary-${storyId}-${sessionNumber}`, JSON.stringify({ story, session, feedbacks }));
-      router.push(`/session/${storyId}/summary?session=${sessionNumber}`);
+      router.push(`/session/${storyId}/summary?session=${sessionNumber}&userSessionId=${encodeURIComponent(session.user_session_id)}`);
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "We could not complete this session.");

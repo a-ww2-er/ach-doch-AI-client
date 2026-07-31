@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import SessionChat from "@/components/session/SessionChat";
+import { api } from "@/lib/api";
 
 interface SummaryData {
   story: { title: string };
@@ -13,12 +15,38 @@ interface SummaryData {
 
 export default function SessionSummaryPage() {
   const { storyId } = useParams<{ storyId: string }>();
-  const sessionNumber = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("session") || "1";
-  const [summary] = useState<SummaryData | null>(() => {
+  const searchParams = useSearchParams();
+  const sessionNumber = searchParams.get("session") || "1";
+  const userSessionId = searchParams.get("userSessionId");
+  const [summary, setSummary] = useState<SummaryData | null>(() => {
     if (typeof window === "undefined") return null;
     const saved = window.sessionStorage.getItem(`ach-doch-summary-${storyId}-${sessionNumber}`);
     return saved ? JSON.parse(saved) as SummaryData : null;
   });
+  const [loading, setLoading] = useState(!summary && Boolean(userSessionId));
+
+  useEffect(() => {
+    if (summary || !userSessionId) return;
+    const sessionId = userSessionId;
+    let active = true;
+    async function restoreSummary() {
+      try {
+        const [story, progress] = await Promise.all([api.getStory(storyId), api.getSessionProgress(sessionId)]);
+        if (!active) return;
+        setSummary({ story, session: { user_session_id: sessionId }, feedbacks: Object.fromEntries(progress.attempts.map((attempt) => [attempt.sentence_id, attempt])) });
+      } catch {
+        // The empty state below explains how to return to a valid session.
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    restoreSummary();
+    return () => { active = false; };
+  }, [storyId, userSessionId, summary]);
+
+  if (loading) {
+    return <main className="flex-grow flex items-center justify-center px-6 pt-24"><p className="text-label-bold uppercase animate-pulse">Restoring summary...</p></main>;
+  }
 
   if (!summary) {
     return <main className="flex-grow flex flex-col items-center justify-center px-6 pt-24 text-center"><p className="text-label-bold uppercase mb-4">Summary unavailable</p><p className="text-body-md opacity-70 mb-6">Complete a session first to see its results.</p><Link href="/" className="bg-primary-container text-on-primary text-label-bold uppercase px-8 py-4">Start a session</Link></main>;
