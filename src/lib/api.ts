@@ -167,7 +167,8 @@ export const api = {
   },
 
   async lookupWord(word: string, lang: string) {
-    const res = await fetch(`${API_BASE}/dictionary/lookup?word=${word}&lang=${lang}`);
+    const query = new URLSearchParams({ word, lang });
+    const res = await fetch(`${API_BASE}/dictionary/lookup?${query.toString()}`);
     if (!res.ok) return null;
     return res.json();
   }

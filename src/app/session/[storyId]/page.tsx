@@ -101,7 +101,7 @@ export default function SessionPage() {
         direction: story.direction,
         cefr_level: story.cefr_level,
       });
-      setFeedbacks({ ...feedbacks, [sentenceId]: result });
+      setFeedbacks((current) => ({ ...current, [sentenceId]: result }));
     } catch (err) {
       console.error(err);
       setError("We could not evaluate that translation. Please try again.");
