@@ -38,9 +38,9 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <button aria-label="Account" className="hidden sm:block text-[#222222] hover:opacity-70 transition-all">
+          <Link href="/login" aria-label="Account" className="hidden sm:block text-[#222222] hover:opacity-70 transition-all">
             <span className="material-symbols-outlined text-2xl">account_circle</span>
-          </button>
+          </Link>
           <button
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={menuOpen}
