@@ -10,8 +10,8 @@ import { useAuth } from "@/lib/auth";
 
 interface Story { title: string; direction: string; cefr_level: string; }
 interface Sentence { id: string; source_text: string; }
-interface Session { id: string; session_number: number; user_session_id: string; source_lang?: string; sentences: Sentence[]; cultural_notes?: { sentence_id: string; term: string; explanation: string }[]; idioms?: { sentence_id: string; idiom: string; meaning: string; equivalent: string }[]; }
-interface Feedback { score: number; critiques: { category: string; original: string; suggestion: string; explanation: string }[]; model_translation: string; }
+interface Session { id: string; session_number: number; user_session_id: string; source_lang?: string; sentences: Sentence[]; cultural_notes?: { sentence_id: string; term: string; explanation: string }[]; idioms?: { sentence_id: string; idiom: string; meaning: string; equivalent: string }[]; attempts?: Feedback[]; }
+interface Feedback { sentence_id?: string; user_translation?: string; score: number; critiques: { category: string; original: string; suggestion: string; explanation: string }[]; model_translation: string; }
 
 export default function SessionPage() {
   const params = useParams();
@@ -31,6 +31,7 @@ export default function SessionPage() {
   const [dictLoading, setDictLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function SessionPage() {
         // Load the first session
         const sessionData = await api.getSessionDetails(storyId, sessionNumber);
         setSession(sessionData);
+        setFeedbacks(Object.fromEntries((sessionData.attempts || []).filter((attempt: Feedback) => attempt.sentence_id).map((attempt: Feedback) => [attempt.sentence_id, attempt])));
       } catch (err) {
         console.error(err);
         setError("We could not load this session. Please try again.");
@@ -114,9 +116,20 @@ export default function SessionPage() {
   const completedCount = Object.keys(feedbacks).length;
   const totalSentences = session.sentences.length;
 
-  const finishSession = () => {
-    window.sessionStorage.setItem(`ach-doch-summary-${storyId}-${sessionNumber}`, JSON.stringify({ story, session, feedbacks }));
-    router.push(`/session/${storyId}/summary?session=${sessionNumber}`);
+  const finishSession = async () => {
+    if (!session) return;
+    setFinishing(true);
+    setError(null);
+    try {
+      await api.completeSession(session.user_session_id);
+      window.sessionStorage.setItem(`ach-doch-summary-${storyId}-${sessionNumber}`, JSON.stringify({ story, session, feedbacks }));
+      router.push(`/session/${storyId}/summary?session=${sessionNumber}`);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "We could not complete this session.");
+    } finally {
+      setFinishing(false);
+    }
   };
 
   return (
@@ -141,7 +154,7 @@ export default function SessionPage() {
         {completedCount === totalSentences && totalSentences > 0 && (
           <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-primary-container bg-surface-container-low p-5">
             <div><p className="text-label-bold uppercase mb-1">Session complete</p><p className="text-sm opacity-70">Review your translation feedback and recurring errors.</p></div>
-            <button onClick={finishSession} className="bg-primary-container text-on-primary text-label-bold uppercase px-6 py-4">View Summary</button>
+            <button onClick={finishSession} disabled={finishing} className="bg-primary-container text-on-primary text-label-bold uppercase px-6 py-4 disabled:opacity-50">{finishing ? "Saving..." : "View Summary"}</button>
           </div>
         )}
       </div>

@@ -30,6 +30,15 @@ export interface VocabularyEntry {
   last_seen_at: string | null;
 }
 
+export interface ProgressOverview {
+  total_sessions: number;
+  completed_sessions: number;
+  average_score: number | null;
+  total_attempts: number;
+  error_categories: { category: string; count: number }[];
+  recent_sessions: { user_session_id: string; story_id: string; story_title: string; session_number: number; status: string; overall_score: number | null; completed_at: string | null }[];
+}
+
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number) {
     super(message);
@@ -120,6 +129,18 @@ export const api = {
     const res = await fetch(`${API_BASE}/stories/${storyId}/sessions/${sessionNum}`, { headers: authHeaders() });
     if (!res.ok) throw new Error("Session not found");
     return res.json();
+  },
+
+  async completeSession(userSessionId: string) {
+    const res = await fetch(`${API_BASE}/sessions/${userSessionId}/complete`, { method: "POST", headers: authHeaders() });
+    if (!res.ok) throw new ApiError((await res.json().catch(() => null))?.detail || "We could not complete this session", res.status);
+    return res.json();
+  },
+
+  async getProgressOverview() {
+    const res = await fetch(`${API_BASE}/progress/overview`, { headers: authHeaders() });
+    if (!res.ok) throw new ApiError("We could not load your progress", res.status);
+    return res.json() as Promise<ProgressOverview>;
   },
 
   async evaluateTranslation(data: {
