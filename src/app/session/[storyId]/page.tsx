@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import SentenceCard from "@/components/session/SentenceCard";
 import GlossaryPanel from "@/components/session/GlossaryPanel";
@@ -13,6 +13,7 @@ interface Feedback { score: number; critiques: { category: string; original: str
 
 export default function SessionPage() {
   const params = useParams();
+  const router = useRouter();
   const storyId = params.storyId as string;
 
   const [story, setStory] = useState<Story | null>(null);
@@ -80,6 +81,12 @@ export default function SessionPage() {
   if (!story || !session) return <div className="p-20 text-center" role="alert">{error || "Session not found."}</div>;
 
   const completedCount = Object.keys(feedbacks).length;
+  const totalSentences = session.sentences.length;
+
+  const finishSession = () => {
+    window.sessionStorage.setItem(`ach-doch-summary-${storyId}`, JSON.stringify({ story, session, feedbacks }));
+    router.push(`/session/${storyId}/summary`);
+  };
 
   return (
     <div className="flex-grow flex flex-col pt-32 pb-margin-page px-margin-page max-w-[1440px] mx-auto w-full">
@@ -92,8 +99,20 @@ export default function SessionPage() {
         </div>
         <div className="flex gap-4">
           <div className="px-4 py-2 bg-surface-container-low border border-outline-variant text-label-bold">{(story?.direction || "").replace('_', ' -> ')}</div>
-          <div className="px-4 py-2 bg-surface-container-low border border-outline-variant text-label-bold">{completedCount} / {session.sentences.length} Completed</div>
+           <div className="px-4 py-2 bg-surface-container-low border border-outline-variant text-label-bold">{completedCount} / {totalSentences} Completed</div>
         </div>
+      </div>
+
+      <div className="mb-10">
+        <div className="h-2 bg-surface-container-high overflow-hidden" aria-label={`${completedCount} of ${totalSentences} sentences completed`} role="progressbar" aria-valuenow={completedCount} aria-valuemin={0} aria-valuemax={totalSentences}>
+          <div className="h-full bg-secondary-container transition-all duration-500" style={{ width: `${totalSentences ? (completedCount / totalSentences) * 100 : 0}%` }} />
+        </div>
+        {completedCount === totalSentences && totalSentences > 0 && (
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-primary-container bg-surface-container-low p-5">
+            <div><p className="text-label-bold uppercase mb-1">Session complete</p><p className="text-sm opacity-70">Review your translation feedback and recurring errors.</p></div>
+            <button onClick={finishSession} className="bg-primary-container text-on-primary text-label-bold uppercase px-6 py-4">View Summary</button>
+          </div>
+        )}
       </div>
 
       {/* Grid Layout */}
