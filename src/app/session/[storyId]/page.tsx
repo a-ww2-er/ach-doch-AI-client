@@ -7,6 +7,7 @@ import SentenceCard from "@/components/session/SentenceCard";
 import GlossaryPanel from "@/components/session/GlossaryPanel";
 import ContextPanel from "@/components/session/ContextPanel";
 import { useAuth } from "@/lib/auth";
+import SessionLoading from "@/components/session/SessionLoading";
 
 interface Story { title: string; direction: string; cefr_level: string; }
 interface Sentence { id: string; source_text: string; }
@@ -110,7 +111,7 @@ export default function SessionPage() {
     }
   };
 
-  if (loading) return <div className="p-20 text-center text-headline-md">Loading Session...</div>;
+  if (loading) return <SessionLoading />;
   if (!story || !session) return <div className="p-20 text-center" role="alert">{error || "Session not found."}</div>;
 
   const completedCount = Object.keys(feedbacks).length;

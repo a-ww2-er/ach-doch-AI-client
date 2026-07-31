@@ -1,76 +1,8 @@
-"use client";
+import Link from "next/link";
 
-import React, { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
-
-interface StoryPreset {
-  title: string;
-  direction: string;
-  category: string;
-  theme: string;
-  cefr_level: string;
-  label: string;
-  image: string;
-}
-
-const presets: StoryPreset[] = [
-  { title: "The Missing Piece", label: "Berlin / thriller", direction: "EN_DE", category: "novel", cefr_level: "A2", theme: "A bike courier in Berlin accidentally picks up the wrong package and becomes the target of a smuggling ring.", image: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1200&q=85" },
-  { title: "Last Train Home", label: "Night / connection", direction: "DE_EN", category: "novel", cefr_level: "B1", theme: "Two strangers miss the last train out of Hamburg and discover they may be headed toward the same secret.", image: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=85" },
-  { title: "Café at 7:15", label: "Everyday / dialogue", direction: "EN_DE", category: "modern_genz", cefr_level: "B1", theme: "A regular at a small café finds a handwritten message tucked beneath their usual cup.", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=85" },
-];
+const heroImage = "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=85";
+const detailImage = "https://images.unsplash.com/photo-1521292270410-a8c4d716d518?auto=format&fit=crop&w=1200&q=85";
 
 export default function Home() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [title, setTitle] = useState("The Missing Piece");
-  const [direction, setDirection] = useState("EN_DE");
-  const [category, setCategory] = useState("novel");
-  const [cefrLevel, setCefrLevel] = useState("A2");
-  const [theme, setTheme] = useState("A bike courier in Berlin accidentally picks up the wrong package and becomes the target of a smuggling ring.");
-
-  const startStory = async (story: StoryPreset) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await api.generateStory(story);
-      router.push(`/session/${result.story_id}`);
-    } catch (err) {
-      console.error(err);
-      setError("We could not start a session. Check that the server is available and try again.");
-      setIsLoading(false);
-    }
-  };
-
-  const startTestSession = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await startStory({ title, direction, category, theme, cefr_level: cefrLevel, label: "Custom story", image: "" });
-  };
-
-  return (
-    <main className="flex-grow flex flex-col items-center justify-center p-gutter">
-      <div className="w-full max-w-5xl animate-in fade-in zoom-in duration-700">
-        <div className="text-center mb-12"><h1 className="text-headline-display tracking-widest uppercase">ACH-DOCH</h1><p className="text-body-lg opacity-70 mt-4">Master the nuance of German and English through narrative translation.</p></div>
-        <section className="mb-14" aria-labelledby="presets-heading">
-          <div className="flex items-end justify-between border-b border-primary-container pb-4 mb-6"><div><span className="text-label-bold uppercase text-on-surface-variant">Start quickly</span><h2 id="presets-heading" className="text-headline-md mt-2">Pick a story.</h2></div><span className="text-label-bold uppercase opacity-50 hidden sm:block">One click to begin</span></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {presets.map((preset) => <button key={preset.title} type="button" disabled={isLoading} onClick={() => startStory(preset)} className="group relative min-h-72 overflow-hidden border border-primary-container text-left disabled:opacity-60" style={{ backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.05) 20%, rgba(0,0,0,0.82) 100%), url(${preset.image})`, backgroundPosition: "center", backgroundSize: "cover" }} aria-label={`Start ${preset.title}`}><span className="absolute inset-0 bg-secondary-container/0 transition-colors group-hover:bg-secondary-container/20" /><span className="absolute bottom-0 left-0 right-0 p-6 text-white"><span className="text-label-bold uppercase opacity-75">{preset.label} / {preset.cefr_level}</span><strong className="block font-epilogue text-2xl mt-2">{preset.title}</strong><span className="mt-4 inline-flex items-center gap-2 text-label-bold uppercase">{isLoading ? "Generating..." : "Start story"}<span className="material-symbols-outlined text-base transition-transform group-hover:translate-x-1">arrow_forward</span></span></span></button>)}
-          </div>
-        </section>
-        <form onSubmit={startTestSession} className="bg-surface border border-primary-container p-6 md:p-10 text-left">
-          <div className="border-b border-outline-variant pb-5 mb-8"><span className="text-label-bold uppercase text-on-surface-variant">Build your session</span><h2 className="text-headline-md mt-2">Choose a story to translate.</h2></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2"><label htmlFor="title" className="text-label-bold uppercase block mb-2">Story title</label><input id="title" required value={title} onChange={(event) => setTitle(event.target.value)} className="w-full border-b border-outline bg-transparent px-0 py-3 outline-none focus:border-primary-container" /></div>
-            <div><label htmlFor="direction" className="text-label-bold uppercase block mb-2">Translation direction</label><select id="direction" value={direction} onChange={(event) => setDirection(event.target.value)} className="w-full border-b border-outline bg-transparent py-3 outline-none"><option value="EN_DE">English to German</option><option value="DE_EN">German to English</option></select></div>
-            <div><label htmlFor="level" className="text-label-bold uppercase block mb-2">Level</label><select id="level" value={cefrLevel} onChange={(event) => setCefrLevel(event.target.value)} className="w-full border-b border-outline bg-transparent py-3 outline-none"><option value="A2">A2 / Elementary</option><option value="B1">B1 / Intermediate</option><option value="B2">B2 / Upper intermediate</option><option value="C1">C1 / Advanced</option></select></div>
-            <div><label htmlFor="category" className="text-label-bold uppercase block mb-2">Story style</label><select id="category" value={category} onChange={(event) => setCategory(event.target.value)} className="w-full border-b border-outline bg-transparent py-3 outline-none"><option value="novel">Novel</option><option value="modern_genz">Modern / Gen Z</option></select></div>
-            <div className="md:col-span-2"><label htmlFor="theme" className="text-label-bold uppercase block mb-2">Premise or theme</label><textarea id="theme" required rows={3} value={theme} onChange={(event) => setTheme(event.target.value)} className="w-full border-b border-outline bg-transparent px-0 py-3 outline-none resize-none focus:border-primary-container" /></div>
-          </div>
-          {error && <p role="alert" className="mt-6 border border-error bg-error-container px-4 py-3 text-sm">{error}</p>}
-          <div className="mt-8 flex justify-end"><button type="submit" disabled={isLoading} className="bg-primary-container text-on-primary text-label-bold uppercase px-10 py-5 hover:bg-secondary-container transition-all active:scale-95 disabled:opacity-50">{isLoading ? "Generating Your Story..." : "Start Translation"}</button></div>
-        </form>
-      </div>
-    </main>
-  );
+  return <main className="flex-grow bg-[#f5f2ec] overflow-hidden"><section className="relative min-h-[720px] bg-[#161616] text-[#f5f2ec] pt-36 pb-16 px-6 md:px-12"><div className="absolute -right-32 -top-36 h-[520px] w-[520px] rounded-full bg-secondary-container opacity-90 blur-[1px]" /><div className="absolute right-[21%] top-[25%] h-4 w-4 rounded-full bg-[#f5f2ec]" /><div className="max-w-[1440px] mx-auto relative grid lg:grid-cols-[1.1fr_.9fr] gap-12 items-end"><div className="relative z-10"><div className="flex items-center gap-3 mb-10"><span className="h-px w-14 bg-secondary-container" /><span className="text-label-bold uppercase text-secondary-fixed">Narrative translation lab / 01</span></div><h1 className="font-epilogue text-[clamp(4.5rem,13vw,12.5rem)] leading-[0.78] tracking-[-0.09em] font-black uppercase">Speak<br /><span className="text-secondary-container">between</span><br />worlds.</h1><p className="max-w-lg text-lg md:text-xl leading-relaxed opacity-70 mt-12">A living language practice built from stories, mistakes, and the beautiful space between what you said and what you meant.</p><div className="flex flex-wrap items-center gap-5 mt-10"><Link href="/start" className="bg-secondary-container text-on-primary text-label-bold uppercase px-8 py-5 hover:bg-[#ff7a4d] transition-colors">Enter the lab <span className="material-symbols-outlined align-middle ml-2 text-base">arrow_forward</span></Link><Link href="#method" className="text-label-bold uppercase border-b border-[#f5f2ec]/50 pb-1 hover:border-[#f5f2ec]">See how it works</Link></div></div><div className="relative hidden lg:block min-h-[500px]" aria-hidden="true"><div className="absolute inset-8 border border-[#f5f2ec]/30" /><div className="absolute inset-16 bg-cover bg-center grayscale mix-blend-screen opacity-70" style={{ backgroundImage: `url(${heroImage})` }} /><div className="absolute -left-3 bottom-20 bg-[#f5f2ec] text-[#161616] px-5 py-4 font-epilogue text-xl font-bold -rotate-6">Meaning is a moving target.</div><div className="absolute right-0 top-5 text-[10px] tracking-[0.35em] uppercase [writing-mode:vertical-rl] opacity-60">EN / DE / Repeat</div></div></div><div className="max-w-[1440px] mx-auto relative mt-16 pt-5 border-t border-[#f5f2ec]/20 flex flex-wrap gap-x-10 gap-y-3 text-label-bold uppercase opacity-60"><span>English <span className="text-secondary-container">↔</span> German</span><span>AI-guided feedback</span><span>A2 to C1</span><span>Stories that stay with you</span></div></section><div className="bg-secondary-container text-on-primary overflow-hidden py-3"><div className="home-marquee-track flex w-max gap-12 text-label-bold uppercase"><span>Translate the feeling</span><span>*</span><span>Find the exact word</span><span>*</span><span>Make the mistake useful</span><span>*</span><span>Translate the feeling</span><span>*</span><span>Find the exact word</span><span>*</span></div></div><section id="method" className="max-w-[1440px] mx-auto px-6 md:px-12 py-24 md:py-36"><div className="grid lg:grid-cols-[.8fr_1.2fr] gap-16"><div><span className="text-label-bold uppercase text-secondary">The method / 02</span><h2 className="font-epilogue text-5xl md:text-7xl leading-[0.9] tracking-[-0.06em] font-black uppercase mt-5">Language<br />with a<br /><span className="text-secondary-container">pulse.</span></h2></div><div className="grid sm:grid-cols-3 gap-8 pt-2"><div className="border-t-2 border-primary-container pt-4"><span className="font-epilogue text-5xl font-black">01</span><h3 className="font-epilogue text-xl font-bold mt-8">Choose a world</h3><p className="text-sm leading-relaxed opacity-65 mt-3">Start with a cinematic prompt or build a story from scratch.</p></div><div className="border-t-2 border-primary-container pt-4"><span className="font-epilogue text-5xl font-black">02</span><h3 className="font-epilogue text-xl font-bold mt-8">Translate the moment</h3><p className="text-sm leading-relaxed opacity-65 mt-3">Move sentence by sentence through language that has somewhere to go.</p></div><div className="border-t-2 border-primary-container pt-4"><span className="font-epilogue text-5xl font-black">03</span><h3 className="font-epilogue text-xl font-bold mt-8">Keep the nuance</h3><p className="text-sm leading-relaxed opacity-65 mt-3">Get precise corrections, context, and the words worth carrying forward.</p></div></div></div></section><section className="bg-[#dedbd4] px-6 md:px-12 py-24"><div className="max-w-[1440px] mx-auto grid lg:grid-cols-[1fr_1fr] gap-12 items-center"><div className="min-h-[420px] bg-cover bg-center grayscale" style={{ backgroundImage: `url(${detailImage})` }} /><div className="lg:pl-10"><span className="text-label-bold uppercase text-secondary">The premise / 03</span><h2 className="font-epilogue text-5xl md:text-7xl leading-[0.9] tracking-[-0.06em] font-black uppercase mt-5">Not a<br /><span className="text-secondary-container">worksheet.</span></h2><p className="text-body-lg opacity-70 max-w-md mt-8">Because the words you remember are attached to a face, a street, a bad decision, a train you almost missed.</p><Link href="/start" className="inline-block mt-10 text-label-bold uppercase border-b-2 border-primary-container pb-2">Find your first story <span className="material-symbols-outlined align-middle ml-2 text-base">arrow_outward</span></Link></div></div></section><section className="bg-[#161616] text-[#f5f2ec] px-6 md:px-12 py-24 md:py-32"><div className="max-w-[1440px] mx-auto text-center"><span className="text-label-bold uppercase text-secondary-fixed">Your next sentence is waiting</span><h2 className="font-epilogue text-6xl md:text-9xl leading-[0.8] tracking-[-0.09em] font-black uppercase mt-8">Make it<br /><span className="text-secondary-container">mean more.</span></h2><Link href="/start" className="inline-block mt-12 bg-secondary-container text-on-primary text-label-bold uppercase px-10 py-5 hover:bg-[#ff7a4d] transition-colors">Begin a session</Link></div></section></main>;
 }

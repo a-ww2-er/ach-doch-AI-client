@@ -59,6 +59,15 @@
   }
 }
 
+@keyframes ach-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-25%); }
+}
+
+.home-marquee-track {
+  animation: ach-marquee 24s linear infinite;
+}
+
 @layer utilities {
   .text-headline-display {
     font-family: var(--font-headline);
