@@ -79,6 +79,11 @@ export const api = {
     return res.json() as Promise<AuthResponse["user"]>;
   },
 
+  async logout() {
+    const res = await fetch(`${API_BASE}/auth/logout`, { method: "POST", headers: authHeaders() });
+    if (!res.ok) throw new ApiError("Logout failed", res.status);
+  },
+
   async listStories() {
     const res = await fetch(`${API_BASE}/stories/`, { headers: authHeaders() });
     if (!res.ok) throw new ApiError("We could not load the story library", res.status);

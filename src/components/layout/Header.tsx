@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clearAuthToken, useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
 
 const navigation = [
   { label: "Dashboard", href: "/dashboard" },
@@ -16,6 +17,10 @@ export default function Header() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const handleLogout = async () => {
+    try { await api.logout(); } catch (error) { console.error(error); } finally { clearAuthToken(); }
+  };
 
   return (
     <header className="fixed top-0 w-full z-50 bg-[#F8F8F8] border-b border-[#222222] h-24 flex items-center">
@@ -40,7 +45,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {isAuthenticated ? <button onClick={clearAuthToken} className="hidden sm:block text-label-bold uppercase text-[#222222]/60 hover:text-[#222222]">Log out</button> : <Link href="/login" aria-label="Account" className="hidden sm:block text-[#222222] hover:opacity-70 transition-all"><span className="material-symbols-outlined text-2xl">account_circle</span></Link>}
+          {isAuthenticated ? <button onClick={handleLogout} className="hidden sm:block text-label-bold uppercase text-[#222222]/60 hover:text-[#222222]">Log out</button> : <Link href="/login" aria-label="Account" className="hidden sm:block text-[#222222] hover:opacity-70 transition-all"><span className="material-symbols-outlined text-2xl">account_circle</span></Link>}
           <button
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={menuOpen}
