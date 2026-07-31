@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { clearAuthToken, useAuth } from "@/lib/auth";
 
 const navigation = [
   { label: "Dashboard", href: "/dashboard" },
@@ -13,6 +14,7 @@ const navigation = [
 
 export default function Header() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (
@@ -38,9 +40,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="/login" aria-label="Account" className="hidden sm:block text-[#222222] hover:opacity-70 transition-all">
-            <span className="material-symbols-outlined text-2xl">account_circle</span>
-          </Link>
+          {isAuthenticated ? <button onClick={clearAuthToken} className="hidden sm:block text-label-bold uppercase text-[#222222]/60 hover:text-[#222222]">Log out</button> : <Link href="/login" aria-label="Account" className="hidden sm:block text-[#222222] hover:opacity-70 transition-all"><span className="material-symbols-outlined text-2xl">account_circle</span></Link>}
           <button
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={menuOpen}

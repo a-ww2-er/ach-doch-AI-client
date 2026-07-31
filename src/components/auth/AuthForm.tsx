@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { setAuthToken } from "@/lib/auth";
 
 export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
     setLoading(true);
     try {
       const result = mode === "register" ? await api.register({ email, password, display_name: displayName || undefined }) : await api.login({ email, password });
-      window.localStorage.setItem("ach-doch-token", result.access_token);
+      setAuthToken(result.access_token);
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to authenticate");
