@@ -58,7 +58,7 @@ export default function GlossaryPanel({ entry, isLoading }: GlossaryPanelProps) 
                   <div>
                     <span>{m.definition}</span>
                     {m.example && (
-                      <p className="text-sm opacity-60 italic mt-1">"{m.example}"</p>
+                       <p className="text-sm opacity-60 italic mt-1">&quot;{m.example}&quot;</p>
                     )}
                   </div>
                 </li>

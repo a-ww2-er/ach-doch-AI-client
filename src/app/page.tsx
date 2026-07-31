@@ -7,9 +7,11 @@ import { api } from "@/lib/api";
 export default function Home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const startTestSession = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const result = await api.generateStory({
         title: "The Missing Piece",
@@ -21,7 +23,7 @@ export default function Home() {
       router.push(`/session/${result.story_id}`);
     } catch (err) {
       console.error(err);
-      alert("Failed to start session. Is the backend running?");
+      setError("We could not start a session. Check that the server is available and try again.");
       setIsLoading(false);
     }
   };
@@ -42,6 +44,7 @@ export default function Home() {
           >
             {isLoading ? "Generating Your Story..." : "Start Test Session"}
           </button>
+          {error && <p role="alert" className="mt-4 text-sm text-error">{error}</p>}
         </div>
       </div>
     </main>

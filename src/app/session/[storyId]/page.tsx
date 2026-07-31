@@ -6,17 +6,23 @@ import { api } from "@/lib/api";
 import SentenceCard from "@/components/session/SentenceCard";
 import GlossaryPanel from "@/components/session/GlossaryPanel";
 
+interface Story { title: string; direction: string; cefr_level: string; }
+interface Sentence { id: string; source_text: string; }
+interface Session { session_number: number; user_session_id: string; source_lang?: string; sentences: Sentence[]; }
+interface Feedback { score: number; critiques: { category: string; original: string; suggestion: string; explanation: string }[]; model_translation: string; }
+
 export default function SessionPage() {
   const params = useParams();
   const storyId = params.storyId as string;
 
-  const [story, setStory] = useState<any>(null);
-  const [session, setSession] = useState<any>(null);
+  const [story, setStory] = useState<Story | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
-  const [feedbacks, setFeedbacks] = useState<Record<string, any>>({});
-  const [dictionaryEntry, setDictionaryEntry] = useState<any>(null);
+  const [feedbacks, setFeedbacks] = useState<Record<string, Feedback>>({});
+  const [dictionaryEntry, setDictionaryEntry] = useState<Parameters<typeof GlossaryPanel>[0]["entry"]>(null);
   const [dictLoading, setDictLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -29,6 +35,7 @@ export default function SessionPage() {
         setSession(sessionData);
       } catch (err) {
         console.error(err);
+        setError("We could not load this session. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -49,6 +56,7 @@ export default function SessionPage() {
   };
 
   const handleTranslationSubmit = async (sentenceId: string, sourceText: string, translation: string) => {
+    if (!session || !story) return;
     setEvaluatingId(sentenceId);
     try {
       const result = await api.evaluateTranslation({
@@ -62,19 +70,20 @@ export default function SessionPage() {
       setFeedbacks({ ...feedbacks, [sentenceId]: result });
     } catch (err) {
       console.error(err);
-      alert("Evaluation failed.");
+      setError("We could not evaluate that translation. Please try again.");
     } finally {
       setEvaluatingId(null);
     }
   };
 
   if (loading) return <div className="p-20 text-center text-headline-md">Loading Session...</div>;
-  if (!story || !session) return <div className="p-20 text-center">Session not found.</div>;
+  if (!story || !session) return <div className="p-20 text-center" role="alert">{error || "Session not found."}</div>;
 
   const completedCount = Object.keys(feedbacks).length;
 
   return (
     <div className="flex-grow flex flex-col pt-32 pb-margin-page px-margin-page max-w-[1440px] mx-auto w-full">
+      {error && <p role="alert" className="mb-6 border border-error bg-error-container px-4 py-3 text-sm">{error}</p>}
       {/* Header Section */}
       <div className="mb-20 border-b border-primary-container pb-6 flex justify-between items-end animate-in fade-in slide-in-from-top-4 duration-500">
         <div>
@@ -91,7 +100,7 @@ export default function SessionPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
         {/* Cards Column */}
         <div className="lg:col-span-8 flex flex-col gap-10">
-          {session.sentences.map((sentence: any, index: number) => (
+          {session.sentences.map((sentence, index) => (
             <SentenceCard
               key={sentence.id}
               number={index + 1}
