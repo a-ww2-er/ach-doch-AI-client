@@ -6,6 +6,17 @@ export interface AuthResponse {
   user: { id: string; email: string; display_name: string | null };
 }
 
+export interface StorySummary {
+  id: string;
+  title: string;
+  theme: string;
+  direction: string;
+  category: string;
+  cefr_level: string;
+  is_system: boolean;
+  sessions: { session_number: number; status: string }[];
+}
+
 function authHeaders(): Record<string, string> {
   if (typeof window === "undefined") return {};
   const token = window.localStorage.getItem("ach-doch-token");
@@ -29,6 +40,12 @@ export const api = {
     const res = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders() });
     if (!res.ok) throw new Error("Authentication required");
     return res.json() as Promise<AuthResponse["user"]>;
+  },
+
+  async listStories() {
+    const res = await fetch(`${API_BASE}/stories/`, { headers: authHeaders() });
+    if (!res.ok) throw new Error("We could not load the story library");
+    return res.json() as Promise<StorySummary[]>;
   },
 
   async generateStory(params: {
