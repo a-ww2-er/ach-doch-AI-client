@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import SessionChat from "@/components/session/SessionChat";
 
 interface SummaryData {
   story: { title: string };
+  session?: { user_session_id: string };
   feedbacks: Record<string, { score: number; critiques: { category: string }[] }>;
 }
 
@@ -35,6 +37,6 @@ export default function SessionSummaryPage() {
       <div className="bg-surface-container-low border border-outline-variant p-7"><span className="text-label-bold uppercase text-on-surface-variant">Corrections found</span><p className="text-headline-lg mt-4">{categories.length}</p></div>
     </div>
     <section className="max-w-2xl"><h2 className="text-headline-md mb-5">Focus next</h2>{recurring.length ? <ul className="space-y-3">{recurring.map((category) => <li key={category} className="border-l-4 border-secondary-container bg-surface-container-low px-5 py-4 text-body-md">{category}</li>)}</ul> : <p className="text-body-lg opacity-70">No recurring error patterns this time. Keep going.</p>}</section>
-    <div className="mt-12 flex flex-wrap gap-6"><Link href={`/session/${storyId}`} className="bg-primary-container text-on-primary text-label-bold uppercase px-8 py-4">Review session</Link><Link href="/" className="text-label-bold uppercase border-b-2 border-primary-container py-4">Start another</Link></div>
+    <div className="mt-12 flex flex-wrap gap-6"><Link href={`/session/${storyId}?session=${sessionNumber}`} className="bg-primary-container text-on-primary text-label-bold uppercase px-8 py-4">Review session</Link><Link href="/" className="text-label-bold uppercase border-b-2 border-primary-container py-4">Start another</Link></div>{summary.session?.user_session_id && <SessionChat userSessionId={summary.session.user_session_id} />}
   </main>;
 }

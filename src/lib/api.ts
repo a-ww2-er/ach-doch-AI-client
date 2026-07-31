@@ -143,6 +143,12 @@ export const api = {
     return res.json() as Promise<ProgressOverview>;
   },
 
+  async sendChatMessage(userSessionId: string, message: string) {
+    const res = await fetch(`${API_BASE}/chat/session/${userSessionId}/message`, { method: "POST", headers: { "Content-Type": "application/json", ...authHeaders() }, body: JSON.stringify({ message }) });
+    if (!res.ok) throw new ApiError((await res.json().catch(() => null))?.detail || "The language coach is unavailable", res.status);
+    return res.json() as Promise<{ message: string; history: { role: "user" | "assistant"; content: string }[] }>;
+  },
+
   async evaluateTranslation(data: {
     user_session_id: string;
     sentence_id: string;
