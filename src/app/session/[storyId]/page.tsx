@@ -6,16 +6,18 @@ import { api } from "@/lib/api";
 import SentenceCard from "@/components/session/SentenceCard";
 import GlossaryPanel from "@/components/session/GlossaryPanel";
 import ContextPanel from "@/components/session/ContextPanel";
+import { useAuth } from "@/lib/auth";
 
 interface Story { title: string; direction: string; cefr_level: string; }
 interface Sentence { id: string; source_text: string; }
-interface Session { session_number: number; user_session_id: string; source_lang?: string; sentences: Sentence[]; cultural_notes?: { sentence_id: string; term: string; explanation: string }[]; idioms?: { sentence_id: string; idiom: string; meaning: string; equivalent: string }[]; }
+interface Session { id: string; session_number: number; user_session_id: string; source_lang?: string; sentences: Sentence[]; cultural_notes?: { sentence_id: string; term: string; explanation: string }[]; idioms?: { sentence_id: string; idiom: string; meaning: string; equivalent: string }[]; }
 interface Feedback { score: number; critiques: { category: string; original: string; suggestion: string; explanation: string }[]; model_translation: string; }
 
 export default function SessionPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuth();
   const storyId = params.storyId as string;
   const requestedSession = Number(searchParams.get("session") || "1");
   const sessionNumber = Number.isInteger(requestedSession) && requestedSession > 0 ? requestedSession : 1;
@@ -27,6 +29,8 @@ export default function SessionPage() {
   const [feedbacks, setFeedbacks] = useState<Record<string, Feedback>>({});
   const [dictionaryEntry, setDictionaryEntry] = useState<Parameters<typeof GlossaryPanel>[0]["entry"]>(null);
   const [dictLoading, setDictLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,6 +54,7 @@ export default function SessionPage() {
 
   const handleWordClick = async (word: string) => {
     setDictLoading(true);
+    setSaveMessage(null);
     try {
       const result = await api.lookupWord(word, session?.source_lang || "DE");
       setDictionaryEntry(result);
@@ -57,6 +62,28 @@ export default function SessionPage() {
       console.error(err);
     } finally {
       setDictLoading(false);
+    }
+  };
+
+  const handleSaveWord = async () => {
+    if (!dictionaryEntry || !session) return;
+    setSaveLoading(true);
+    setSaveMessage(null);
+    try {
+      await api.saveVocabulary({
+        word_form: dictionaryEntry.lemma,
+        lemma: dictionaryEntry.lemma,
+        language: session.source_lang || "DE",
+        pos: dictionaryEntry.partOfSpeech,
+        meanings: dictionaryEntry.meanings,
+        source_session_id: session.id,
+      });
+      setSaveMessage("Saved to journal");
+    } catch (err) {
+      console.error(err);
+      setSaveMessage("Could not save word");
+    } finally {
+      setSaveLoading(false);
     }
   };
 
@@ -141,6 +168,10 @@ export default function SessionPage() {
            <GlossaryPanel 
              entry={dictionaryEntry} 
              isLoading={dictLoading}
+             isAuthenticated={isAuthenticated}
+             onSave={handleSaveWord}
+             isSaving={saveLoading}
+             saveMessage={saveMessage}
            />
            <ContextPanel culturalNotes={session.cultural_notes || []} idioms={session.idioms || []} />
          </aside>

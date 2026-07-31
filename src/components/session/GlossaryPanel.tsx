@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 
 interface Meaning {
   definition: string;
@@ -17,9 +18,13 @@ interface DictionaryEntry {
 interface GlossaryPanelProps {
   entry: DictionaryEntry | null;
   isLoading?: boolean;
+  isAuthenticated?: boolean;
+  onSave?: () => Promise<void>;
+  isSaving?: boolean;
+  saveMessage?: string | null;
 }
 
-export default function GlossaryPanel({ entry, isLoading }: GlossaryPanelProps) {
+export default function GlossaryPanel({ entry, isLoading, isAuthenticated, onSave, isSaving, saveMessage }: GlossaryPanelProps) {
   if (isLoading) {
     return (
       <div className="bg-surface border border-outline-variant p-6 animate-pulse">
@@ -64,6 +69,7 @@ export default function GlossaryPanel({ entry, isLoading }: GlossaryPanelProps) 
                 </li>
               ))}
             </ul>
+            {isAuthenticated ? <button onClick={onSave} disabled={isSaving || !onSave} className="mt-6 w-full border border-primary-container px-4 py-3 text-label-bold uppercase hover:bg-primary-container hover:text-on-primary disabled:opacity-50">{isSaving ? "Saving..." : saveMessage || "Save to journal"}</button> : <Link href="/login" className="mt-6 block text-center border border-primary-container px-4 py-3 text-label-bold uppercase hover:bg-primary-container hover:text-on-primary">Log in to save</Link>}
           </div>
           
           <div className="pt-4 border-t border-outline-variant">

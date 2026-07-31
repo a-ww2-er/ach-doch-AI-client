@@ -17,6 +17,19 @@ export interface StorySummary {
   sessions: { session_number: number; status: string }[];
 }
 
+export interface VocabularyEntry {
+  id: string;
+  word_form: string;
+  lemma: string;
+  language: "EN" | "DE";
+  pos: string | null;
+  meanings: { definition: string; example?: string }[];
+  source_session_id: string | null;
+  encounter_count: number;
+  mastery_score: number;
+  last_seen_at: string | null;
+}
+
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number) {
     super(message);
@@ -53,6 +66,32 @@ export const api = {
     const res = await fetch(`${API_BASE}/stories/`, { headers: authHeaders() });
     if (!res.ok) throw new ApiError("We could not load the story library", res.status);
     return res.json() as Promise<StorySummary[]>;
+  },
+
+  async listVocabulary(params: { language?: string; search?: string } = {}) {
+    const query = new URLSearchParams();
+    if (params.language) query.set("language", params.language);
+    if (params.search?.trim()) query.set("search", params.search.trim());
+    const res = await fetch(`${API_BASE}/vocabulary/?${query.toString()}`, { headers: authHeaders() });
+    if (!res.ok) throw new ApiError("We could not load your journal", res.status);
+    return res.json() as Promise<VocabularyEntry[]>;
+  },
+
+  async saveVocabulary(data: { word_form: string; lemma: string; language: string; pos?: string; meanings: { definition: string; example?: string }[]; source_session_id?: string }) {
+    const res = await fetch(`${API_BASE}/vocabulary/`, { method: "POST", headers: { "Content-Type": "application/json", ...authHeaders() }, body: JSON.stringify(data) });
+    if (!res.ok) throw new ApiError("We could not save that word", res.status);
+    return res.json() as Promise<VocabularyEntry>;
+  },
+
+  async reviewVocabulary(id: string, mastery_score: number) {
+    const res = await fetch(`${API_BASE}/vocabulary/${id}/review`, { method: "PATCH", headers: { "Content-Type": "application/json", ...authHeaders() }, body: JSON.stringify({ mastery_score }) });
+    if (!res.ok) throw new ApiError("We could not update that word", res.status);
+    return res.json() as Promise<VocabularyEntry>;
+  },
+
+  async deleteVocabulary(id: string) {
+    const res = await fetch(`${API_BASE}/vocabulary/${id}`, { method: "DELETE", headers: authHeaders() });
+    if (!res.ok) throw new ApiError("We could not remove that word", res.status);
   },
 
   async generateStory(params: {
