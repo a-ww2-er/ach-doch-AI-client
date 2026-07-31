@@ -20,11 +20,11 @@ const faqs = [
 export default function Home() {
   return <main className="flex-grow bg-[#f5f2ec] overflow-hidden">
     <section className="relative min-h-[720px] bg-[#161616] text-[#f5f2ec] pt-36 pb-16 px-6 md:px-12">
-      <div className="absolute -right-32 -top-36 h-[520px] w-[520px] rounded-full bg-secondary-container opacity-90 blur-[1px]" />
+      <div className="absolute -right-24 -top-16 h-[240px] w-[240px] rounded-full bg-secondary-container opacity-80 blur-[1px] md:-right-32 md:-top-36 md:h-[520px] md:w-[520px] md:opacity-90" />
       <div className="absolute right-[21%] top-[25%] h-4 w-4 rounded-full bg-[#f5f2ec]" />
       <div className="max-w-[1440px] mx-auto relative grid lg:grid-cols-[1.1fr_.9fr] gap-12 items-end">
         <div className="relative z-10">
-          <h1 className="max-w-3xl font-epilogue text-[clamp(3.75rem,10vw,8rem)] leading-[0.88] tracking-[-0.08em] font-black uppercase"><span className="text-secondary-container">Narrative practice</span><br />for English and German.</h1>
+          <h1 className="max-w-3xl font-epilogue text-[clamp(3.75rem,10vw,8rem)] leading-[0.88] tracking-[-0.08em] font-black uppercase text-[#f5f2ec]"><span>Narrative practice</span><br /><span className="text-secondary-container">for English and German.</span></h1>
           <p className="max-w-lg text-base sm:text-lg md:text-xl leading-relaxed opacity-70 mt-10 md:mt-12">A living language practice built from stories, mistakes, and the beautiful space between what you said and what you meant.</p>
           <div className="flex flex-wrap items-center gap-5 mt-8 md:mt-10"><Link href="/start" className="bg-secondary-container text-on-primary text-label-bold uppercase px-7 sm:px-8 py-4 sm:py-5 hover:bg-[#ff7a4d] transition-colors">Enter the lab <span className="material-symbols-outlined align-middle ml-2 text-base">arrow_forward</span></Link><Link href="#method" className="text-label-bold uppercase border-b border-[#f5f2ec]/50 pb-1 hover:border-[#f5f2ec]">See how it works</Link></div>
         </div>
