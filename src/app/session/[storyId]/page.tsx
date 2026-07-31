@@ -5,10 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import SentenceCard from "@/components/session/SentenceCard";
 import GlossaryPanel from "@/components/session/GlossaryPanel";
+import ContextPanel from "@/components/session/ContextPanel";
 
 interface Story { title: string; direction: string; cefr_level: string; }
 interface Sentence { id: string; source_text: string; }
-interface Session { session_number: number; user_session_id: string; source_lang?: string; sentences: Sentence[]; }
+interface Session { session_number: number; user_session_id: string; source_lang?: string; sentences: Sentence[]; cultural_notes?: { sentence_id: string; term: string; explanation: string }[]; idioms?: { sentence_id: string; idiom: string; meaning: string; equivalent: string }[]; }
 interface Feedback { score: number; critiques: { category: string; original: string; suggestion: string; explanation: string }[]; model_translation: string; }
 
 export default function SessionPage() {
@@ -134,11 +135,12 @@ export default function SessionPage() {
 
         {/* Sidebar Column */}
         <aside className="lg:col-span-4 sticky top-32">
-          <GlossaryPanel 
-            entry={dictionaryEntry} 
-            isLoading={dictLoading}
-          />
-        </aside>
+           <GlossaryPanel 
+             entry={dictionaryEntry} 
+             isLoading={dictLoading}
+           />
+           <ContextPanel culturalNotes={session.cultural_notes || []} idioms={session.idioms || []} />
+         </aside>
       </div>
     </div>
   );
